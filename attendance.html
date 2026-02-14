@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Attendance & Performance Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            width: 600px;
+            margin: 40px;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #667eea;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #5a67d8;
+        }
+
+        .report {
+            background: #f4f4f4;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
+
+        .good {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>SMART ATTENDANCE & PERFORMANCE TRACKER</h2>
+
+    <h3>Add Student</h3>
+    <input type="text" id="roll" placeholder="Roll No">
+    <input type="text" id="name" placeholder="Name">
+    <input type="text" id="semester" placeholder="Semester">
+    <button onclick="addStudent()">Add Student</button>
+
+    <h3>Mark Attendance</h3>
+    <input type="text" id="attRoll" placeholder="Roll No">
+    <input type="number" id="totalLectures" placeholder="Total Lectures">
+    <input type="number" id="attendedLectures" placeholder="Lectures Attended">
+    <button onclick="markAttendance()">Mark Attendance</button>
+
+    <h3>Enter Marks</h3>
+    <input type="text" id="marksRoll" placeholder="Roll No">
+    <input type="number" id="marks" placeholder="Marks (0-100)">
+    <button onclick="enterMarks()">Save Marks</button>
+
+    <h3>View Report</h3>
+    <input type="text" id="reportRoll" placeholder="Roll No">
+    <button onclick="viewReport()">Generate Report</button>
+
+    <div class="report" id="reportBox"></div>
+</div>
+
+<script>
+
+let students = {};
+
+// Add Student
+function addStudent() {
+    let roll = document.getElementById("roll").value;
+    let name = document.getElementById("name").value;
+    let semester = document.getElementById("semester").value;
+
+    if (students[roll]) {
+        alert("Student already exists!");
+        return;
+    }
+
+    students[roll] = {
+        name: name,
+        semester: semester,
+        totalLectures: 0,
+        attendedLectures: 0,
+        marks: null
+    };
+
+    alert("Student added successfully!");
+}
+
+// Mark Attendance
+function markAttendance() {
+    let roll = document.getElementById("attRoll").value;
+    let total = parseInt(document.getElementById("totalLectures").value);
+    let attended = parseInt(document.getElementById("attendedLectures").value);
+
+    if (!students[roll]) {
+        alert("Student not found!");
+        return;
+    }
+
+    students[roll].totalLectures = total;
+    students[roll].attendedLectures = attended;
+
+    alert("Attendance saved successfully!");
+}
+
+// Enter Marks
+function enterMarks() {
+    let roll = document.getElementById("marksRoll").value;
+    let marks = parseInt(document.getElementById("marks").value);
+
+    if (!students[roll]) {
+        alert("Student not found!");
+        return;
+    }
+
+    if (marks < 0 || marks > 100) {
+        alert("Invalid marks! Enter between 0-100.");
+        return;
+    }
+
+    students[roll].marks = marks;
+    alert("Marks saved successfully!");
+}
+
+// AI Performance Remark Logic
+function getRemark(marks) {
+    if (marks >= 75) return "Good";
+    if (marks >= 50) return "Average";
+    return "Needs Improvement";
+}
+
+// View Report
+function viewReport() {
+    let roll = document.getElementById("reportRoll").value;
+    let student = students[roll];
+
+    if (!student) {
+        alert("Student not found!");
+        return;
+    }
+
+    let attendancePercent = 0;
+    if (student.totalLectures > 0) {
+        attendancePercent = 
+        (student.attendedLectures / student.totalLectures) * 100;
+    }
+
+    let warning = attendancePercent < 75 
+        ? "<span class='warning'>⚠ Attendance Shortage</span>" 
+        : "<span class='good'>Attendance OK</span>";
+
+    let remark = student.marks !== null 
+        ? getRemark(student.marks) 
+        : "No Marks Entered";
+
+    document.getElementById("reportBox").innerHTML = `
+        <h4>STUDENT REPORT</h4>
+        Roll No: ${roll}<br>
+        Name: ${student.name}<br>
+        Semester: ${student.semester}<br>
+        Attendance: ${attendancePercent.toFixed(2)}%<br>
+        ${warning}<br>
+        Marks: ${student.marks}<br>
+        Performance: ${remark}
+    `;
+}
+
+</script>
+
+</body>
+</html>
